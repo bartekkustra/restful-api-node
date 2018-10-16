@@ -1,0 +1,16 @@
+{
+  "name": "rest-api",
+  "version": "0.0.1",
+  "description": "REST API for SQLite database with a single table \"users\" (id, name, profession) that allows for CRUD operations via api calls.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Bartosz Kustra, www.barts.work",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "sqlite3": "^4.0.2"
+  }
+}

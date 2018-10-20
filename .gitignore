@@ -1,1 +1,3 @@
 node_modules/
+resttest.sqlite
+yarn.lock

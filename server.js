@@ -18,7 +18,16 @@ var db = new sqlite3.Database(dbPath);
 
 // initialize DB
 db.serialize(() => {
-  db.run('CREATE TABLE IF NOT EXISTS "users"( "id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT, "name" Text NOT NULL, "profession" Text, CONSTRAINT "unique_name" UNIQUE ( "name" ) );');
+  db.run(`CREATE TABLE IF NOT EXISTS 
+            "users"( 
+              "id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+              "email" Text NOT NULL,
+              "password" Text NOT NULL,
+              "name" Text NOT NULL,
+              "profession" Text,
+              CONSTRAINT "unique_email" UNIQUE ( "email" )
+            );
+  `);
 });
 
 // middleware to use for all requests
@@ -39,6 +48,7 @@ router.get('/', (req, res) => res.json({ message: "Welcome to the API!" }));
 * /api/users/:userid   DELETE  Delete a user
 */
 router.route('/users')
+
   // GET /api/users
   .get((req, res) => {
     db.all('SELECT * FROM users', (err, row) => {
@@ -53,12 +63,15 @@ router.route('/users')
       }
     })
   })
+
   // POST /api/users (name, profession?)
   .post((req, res) => {
-    var username = req.body.name;
+    var email = req.body.email;
+    var password = req.body.password;
+    var name = req.body.name;
     var profession = req.body.profession;
 
-    query = `INSERT INTO users ("name", "profession") VALUES ("${username}", "${profession}");`
+    query = `INSERT INTO users ("email", "password", "name", "profession") VALUES ("${email}", "${password}", "${name}", "${profession}");`
     console.log('query', query);
     
     db.run(query, (err, row) => {
@@ -82,6 +95,7 @@ router.route('/users')
   });
 
 router.route('/users/:userid')
+
   // GET /users/123
   .get((req, res) => {
     var query = `SELECT * FROM users WHERE id=${req.params.userid};`;
@@ -102,15 +116,22 @@ router.route('/users/:userid')
     })
     res.end();
   })
+
   // PUT /users/123
   .put((req, res) => {
-    var username = req.body.name;
-    var profession = req.body.profession;
+    var email = req.body.email || "";
+    var password = req.body.password || "";
+    var name = req.body.name || "";
+    var profession = req.body.profession || "";
+
     var changeArr = [];
-    
-    if(username) { changeArr.push(`"name" = '${username}'`); }
+
+    if(email) { changeArr.push(`"email" = '${email}'`); }
+    if(password) { changeArr.push(`"password" = '${password}'`); }
+    if(name) { changeArr.push(`"name" = '${name}'`); }
     if(profession) { changeArr.push(`"profession" = '${profession}'`)}
-    if(!username && !profession) {
+
+    if(!email && !password && !name && !profession) {
       res.json({
         status: 500,
         error: "At least one parameter required",
@@ -137,6 +158,7 @@ router.route('/users/:userid')
       });
     }
   })
+
   // DELETE /users/123
   .delete((req, res) => {
     var query = `DELETE FROM users WHERE id = ${req.params.userid};`;
